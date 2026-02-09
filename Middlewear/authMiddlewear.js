@@ -4,7 +4,6 @@ import userModel from "../Model/userModel.js";
 import { SECRET_KEY } from "../controller/userController.js";
 
 export const middlewaer = async (req, res, next) => {
-    // const header = req.headers || {}
     const { authorization } = req.headers || {};
 
     if (!authorization) {
@@ -18,7 +17,7 @@ export const middlewaer = async (req, res, next) => {
 
 
     const user = await userModel.findById(jwtData?.userId);
-    console.log(user);
+    console.log(user.role);
 
     if (!user) {
         return res.status(402).send("Unauhtorize access")
