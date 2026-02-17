@@ -1,4 +1,3 @@
-// middlewares/adminMiddleware.js
 import jwt from "jsonwebtoken";
 import userModel from "../Model/userModel.js";
 import { SECRET_KEY } from "../controller/userController.js";
@@ -23,11 +22,12 @@ export const adminMiddleware = async (req, res, next) => {
         };
 
         if (user.role !== "admin") {
-            return res.status(403).json({ message: "Forbidden: Admins only" });
-        }
+            return res.status(403).json({ message: "Admins only Can Access" });
+        };
         req.user = user;
 
         next();
+        
     } catch (err) {
         console.error(err);
         return res.status(401).json({ message: "Invalid token" });
