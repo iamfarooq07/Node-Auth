@@ -3,11 +3,10 @@ import mongoose from "mongoose";
 
 import { route } from "./routes/userRoutes.js";
 import { authMiddleware } from "./Middlewear/authMiddlewear.js"
-// import { adminMiddleware } from "./Middlewear/adminMiddlewear.js";
 
 import productModel from "./Model/productModel.js";
-// import { managerMiddleware } from "./Middlewear/managerMiddlewear.js";
 import { authorizeRoles } from "./Middlewear/authorizeRoles.js";
+import { productDelete, productPost, productPut } from "./controller/productController.js";
 
 
 const app = express();
@@ -28,7 +27,7 @@ app.use("/api", route);
    PRODUCT ROUTES
    ======================= */
 
-// Read → User + Admin
+// Read → User + Admin + Manager
 app.get("/product", authMiddleware, async (req, res) => {
     const products = await productModel.find();
     res.json(products);
@@ -43,36 +42,15 @@ app.get("/product/:id", authMiddleware, async (req, res) => {
    PRIVITE ROUTES
    ======================= */
 
-// Create → Admin only
-// app.post("/product", middlewaer, adminMiddleware, managerMiddleware, async (req, res) => {
-//     const product = await productModel.create(req.body);
-//     res.status(201).json(product);
-// });
-app.post(
-    "/product",
-    authMiddleware,
-    authorizeRoles("admin", "manager"),
-    async (req, res) => {
-        const product = await productModel.create(req.body);
-        res.status(201).json(product);
-    }
+// Used → only [Admin, Manager]
+app.post("/product", authMiddleware, authorizeRoles("admin", "manager"), productPost
 );
 
-// Update → Admin only
-app.put("/product/:id", authMiddleware, authorizeRoles("admin", 'manager'), async (req, res) => {
-    const product = await productModel.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-    );
-    res.json(product);
-});
+app.put("/product/:id", authMiddleware, authorizeRoles("admin", 'manager'), productPut);
 
-// Delete → Admin only
-app.delete("/product/:id", authMiddleware, authorizeRoles("admin", "manager"), async (req, res) => {
-    await productModel.findByIdAndDelete(req.params.id);
-    res.json({ message: "Product deleted" });
-});
+app.delete("/product/:id", authMiddleware, authorizeRoles("admin", "manager"), productDelete);
+
+// ==========================
 
 // Server
 app.listen(port, () => {
