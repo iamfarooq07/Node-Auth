@@ -7,6 +7,7 @@ import { authMiddleware } from "./Middlewear/authMiddlewear.js"
 import productModel from "./Model/productModel.js";
 import { authorizeRoles } from "./Middlewear/authorizeRoles.js";
 import { productDelete, productPost, productPut } from "./controller/productController.js";
+import multer from "multer";
 
 
 const app = express();
@@ -27,7 +28,23 @@ app.use("/api", route);
    PRODUCT ROUTES
    ======================= */
 
-// Read → User + Admin + Manager
+// Add Multer   
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "uploads/");
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname);
+    }
+});
+const upload = multer({ storage });
+
+app.post("/upload", upload.single("image"), (req, res) => {
+    console.log(req.file);
+    res.send("File uploaded successfully");
+});
+// =================
+// Read → User + Admin + Managernpm 
 app.get("/product", authMiddleware, async (req, res) => {
     const products = await productModel.find();
     res.json(products);
